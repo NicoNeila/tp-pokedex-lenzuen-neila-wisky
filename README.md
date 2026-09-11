@@ -6,11 +6,11 @@ Repositorio del grupo. Partir de este esqueleto. No borrar la estructura de `src
 
 | Nombre | Mail | GitHub |
 | --- | --- | --- |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+| Neila, Cristian Nicolás | nico.neila@gmail.com | @NicoNeila |
+| Lenzuen, Maximiliano | maximilianolenzuen@gmail.com | @Maximilianolenzuen |
+| Wisky, Valentín | valentin10wisky@hotmail.com | @Valentin-wisky |
 
-**Tema elegido:** Pokédex / Recetario / Biblioteca musical (dejar uno)
+**Tema elegido:** Pokédex
 
 ## Cómo ejecutar
 
