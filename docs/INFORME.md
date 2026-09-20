@@ -19,10 +19,21 @@ Las listas y los diccionarios son mutables. Los strings y los números son inmut
 
 ## 3. Recursión (E2)
 
-- Función:
-- Caso base:
-- Caso recursivo:
-- Traza de un ejemplo real del dataset:
+- Función: buscar_pokemon_base() es recursiva, no frena hasta encontrar el pokemon base, el que usamos como parametro para arrancar la cadena
+- Caso base: Cuando ningún pokemon evoluciona en el ID recibido, lo consideramos pokemon base. 
+- Caso recursivo: En caso de arrancar por el último del eslabon, necesitamos retroceder recursivamente hasta llegar al punto inicial.
+- Traza de un ejemplo real del dataset: 
+```text
+listar_cadena_evolutiva(6)              # el usuario elige Charizard
+  buscar_pokemon_base(6)
+    Charmeleon (id 5) evoluciona en 6 → buscar_pokemon_base(5)
+      Charmander (id 4) evoluciona en 5 → buscar_pokemon_base(4)
+        nadie evoluciona en 4 → caso base, devuelve Charmander
+      ← Charmander
+    ← Charmander
+  recorro hacia adelante: Charmander → Charmeleon → Charizard → fin
+  ← ["Charmander", "Charmeleon", "Charizard"]
+```
 
 ## 4. TADs (E3)
 

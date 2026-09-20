@@ -12,6 +12,7 @@ def pendiente():
     print("Todavía no está implementado. Completar en la entrega que corresponde.")
 
 
+
 def mostrar_menu():
     nombre = TEMAS.get(TEMA, TEMA or "(sin tema)")
     print()
@@ -27,6 +28,15 @@ def mostrar_menu():
     print("9. Guardar / cargar archivos")
     print("0. Salir")
 
+def operacion_recursiva() :
+    idPokemon = input("Id del Pokémon: ").strip()
+    pokemonElegido = pokemon.buscar_por_id(int(idPokemon))
+    if pokemonElegido is None:
+        print("No existe ese pokemon")
+        return
+    cadenaEvolutiva = pokemon.listar_cadena_evolutiva(pokemonElegido["id"])
+    print(" -> ".join(cadenaEvolutiva))
+
 
 def main():
     if TEMA not in TEMAS:
@@ -41,7 +51,9 @@ def main():
             print("Chau.")
         elif opcion == "1":
             pokemon.listar_catalogo()
-        elif opcion in {"2", "3", "4", "5", "6", "7", "8", "9"}:
+        elif opcion == "5":
+            operacion_recursiva()
+        elif opcion in {"2", "3", "4", "6", "7", "8", "9"}:
             pendiente()
         else:
             print("Opción inválida.")
