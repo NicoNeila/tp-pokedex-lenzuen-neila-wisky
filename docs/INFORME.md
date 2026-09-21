@@ -23,6 +23,7 @@ Las listas y los diccionarios son mutables. Los strings y los números son inmut
 - Caso base: en buscar_base(), cuando ningún pokemon evoluciona en el ID recibido, lo consideramos pokemon base. En cadena_desde(), cuando el pokemon no tiene evolución siguiente.
 - Caso recursivo: en buscar_base(), en caso de arrancar por el último del eslabon, necesitamos retroceder recursivamente hasta llegar al punto inicial. En cadena_desde(), [nombre] + cadena_desde(evolucion).
 - Traza de un ejemplo real del dataset:
+
 ```text
 cadena_evolutiva(6)              # el usuario elige Charizard
   buscar_base(6)
@@ -35,6 +36,8 @@ cadena_evolutiva(6)              # el usuario elige Charizard
     cadena_desde(5) → ["Charmeleon"] + cadena_desde(6)
       cadena_desde(6) → Charizard no evoluciona → caso base, devuelve ["Charizard"]
   ← ["Charmander", "Charmeleon", "Charizard"]
+```
+
 
 ## 4. TADs (E3)
 
