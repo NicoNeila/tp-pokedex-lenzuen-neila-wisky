@@ -1,16 +1,17 @@
-CATALOGO = [
-    {"id": 1, "nombre": "Bulbasaur", "tipo1": "Planta", "tipo2": "Veneno"},
-    {"id": 2, "nombre": "Ivysaur", "tipo1": "Planta", "tipo2": "Veneno"},
-    {"id": 3, "nombre": "Venusaur", "tipo1": "Planta", "tipo2": "Veneno"},
-    {"id": 4, "nombre": "Charmander", "tipo1": "Fuego", "tipo2": ""},
-    {"id": 5, "nombre": "Charmeleon", "tipo1": "Fuego", "tipo2": ""},
-    {"id": 6, "nombre": "Charizard", "tipo1": "Fuego", "tipo2": "Volador"},
-    {"id": 7, "nombre": "Squirtle", "tipo1": "Agua", "tipo2": ""},
-    {"id": 8, "nombre": "Wartortle", "tipo1": "Agua", "tipo2": ""},
-    {"id": 9, "nombre": "Blastoise", "tipo1": "Agua", "tipo2": ""},
-]
+class Pokemon:
+    """Un Pokemon del catalogo."""
 
+    def __init__(self, id_pokemon, nombre, tipo1, tipo2, evolucion):
+        self.id = id_pokemon
+        self.nombre = nombre
+        self.tipo1 = tipo1
+        self.tipo2 = tipo2
+        self.evolucion = evolucion
 
-def listar_catalogo():
-    for item in CATALOGO:
-        print(f"{item['id']:>3}  {item['nombre']}")
+    def tipos(self):
+        if self.tipo2 == "":
+            return self.tipo1
+        return self.tipo1 + "/" + self.tipo2
+
+    def __str__(self):
+        return f"{self.id:>3}  {self.nombre} ({self.tipos()})"

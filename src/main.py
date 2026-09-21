@@ -1,5 +1,5 @@
 from src.config import TEMA
-from src.dominio import pokemon
+from src.dominio.pokedex import Pokedex
 
 TEMAS = {
     "pokedex": "Pokédex",
@@ -28,10 +28,27 @@ def mostrar_menu():
     print("0. Salir")
 
 
+def operacion_recursiva(dex):
+    texto = input("Id del Pokemon: ").strip()
+    try:
+        id_pokemon = int(texto)
+    except ValueError:
+        print("Tenes que ingresar un numero entero.")
+        return
+    cadena = dex.cadena_evolutiva(id_pokemon)
+    if cadena == []:
+        print("No existe ese Pokemon.")
+        return
+    print(" -> ".join(cadena))
+
+
 def main():
     if TEMA not in TEMAS:
         print("Seteá TEMA en src/config.py: 'pokedex', 'recetario' o 'musica'.")
         return
+
+    dex = Pokedex()
+    dex.cargar_datos_iniciales()
 
     opcion = None
     while opcion != "0":
@@ -40,8 +57,10 @@ def main():
         if opcion == "0":
             print("Chau.")
         elif opcion == "1":
-            pokemon.listar_catalogo()
-        elif opcion in {"2", "3", "4", "5", "6", "7", "8", "9"}:
+            dex.listar()
+        elif opcion == "5":
+            operacion_recursiva(dex)
+        elif opcion in {"2", "3", "4", "6", "7", "8", "9"}:
             pendiente()
         else:
             print("Opción inválida.")
