@@ -38,6 +38,7 @@ cadena_evolutiva(6)              # el usuario elige Charizard
   ← ["Charmander", "Charmeleon", "Charizard"]
 ```
 
+
 ## 4. TADs (E3)
 
 | TAD | Operaciones | Invariante |
