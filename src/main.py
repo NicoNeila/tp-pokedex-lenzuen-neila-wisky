@@ -1,5 +1,5 @@
 from src.config import TEMA
-from src.dominio import pokemon
+from src.dominio.pokedex import Pokedex
 
 TEMAS = {
     "pokedex": "Pokédex",
@@ -10,7 +10,6 @@ TEMAS = {
 
 def pendiente():
     print("Todavía no está implementado. Completar en la entrega que corresponde.")
-
 
 
 def mostrar_menu():
@@ -28,20 +27,28 @@ def mostrar_menu():
     print("9. Guardar / cargar archivos")
     print("0. Salir")
 
-def operacion_recursiva() :
-    idPokemon = input("Id del Pokémon: ").strip()
-    pokemonElegido = pokemon.buscar_por_id(int(idPokemon))
-    if pokemonElegido is None:
-        print("No existe ese pokemon")
+
+def operacion_recursiva(dex):
+    texto = input("Id del Pokemon: ").strip()
+    try:
+        id_pokemon = int(texto)
+    except ValueError:
+        print("Tenes que ingresar un numero entero.")
         return
-    cadenaEvolutiva = pokemon.listar_cadena_evolutiva(pokemonElegido["id"])
-    print(" -> ".join(cadenaEvolutiva))
+    cadena = dex.cadena_evolutiva(id_pokemon)
+    if cadena == []:
+        print("No existe ese Pokemon.")
+        return
+    print(" -> ".join(cadena))
 
 
 def main():
     if TEMA not in TEMAS:
         print("Seteá TEMA en src/config.py: 'pokedex', 'recetario' o 'musica'.")
         return
+
+    dex = Pokedex()
+    dex.cargar_datos_iniciales()
 
     opcion = None
     while opcion != "0":
@@ -50,9 +57,9 @@ def main():
         if opcion == "0":
             print("Chau.")
         elif opcion == "1":
-            pokemon.listar_catalogo()
+            dex.listar()
         elif opcion == "5":
-            operacion_recursiva()
+            operacion_recursiva(dex)
         elif opcion in {"2", "3", "4", "6", "7", "8", "9"}:
             pendiente()
         else:
