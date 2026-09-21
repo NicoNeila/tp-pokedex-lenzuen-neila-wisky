@@ -15,7 +15,7 @@ def listar_catalogo():
     for item in CATALOGO:
         print(f"{item['id']:>3}  {item['nombre']}")
 
-def (id_pokemon) :
+def buscar_por_id(id_pokemon):
     for item in CATALOGO:
         if item ['id'] == id_pokemon:
             return item
