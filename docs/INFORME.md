@@ -19,19 +19,22 @@ Las listas y los diccionarios son mutables. Los strings y los números son inmut
 
 ## 3. Recursión (E2)
 
-- Función: buscar_pokemon_base() es recursiva, no frena hasta encontrar el pokemon base, el que usamos como parametro para arrancar la cadena
-- Caso base: Cuando ningún pokemon evoluciona en el ID recibido, lo consideramos pokemon base. 
-- Caso recursivo: En caso de arrancar por el último del eslabon, necesitamos retroceder recursivamente hasta llegar al punto inicial.
-- Traza de un ejemplo real del dataset: 
+- Función: Pokedex.buscar_base() es recursiva, no frena hasta encontrar el pokemon base, el que usamos como parametro para arrancar la cadena. También es recursiva Pokedex.cadena_desde(), que recorre la cadena hacia adelante.
+- Caso base: en buscar_base(), cuando ningún pokemon evoluciona en el ID recibido, lo consideramos pokemon base. En cadena_desde(), cuando el pokemon no tiene evolución siguiente.
+- Caso recursivo: en buscar_base(), en caso de arrancar por el último del eslabon, necesitamos retroceder recursivamente hasta llegar al punto inicial. En cadena_desde(), [nombre] + cadena_desde(evolucion).
+- Traza de un ejemplo real del dataset:
+
 ```text
-listar_cadena_evolutiva(6)              # el usuario elige Charizard
-  buscar_pokemon_base(6)
-    Charmeleon (id 5) evoluciona en 6 → buscar_pokemon_base(5)
-      Charmander (id 4) evoluciona en 5 → buscar_pokemon_base(4)
+cadena_evolutiva(6)              # el usuario elige Charizard
+  buscar_base(6)
+    Charmeleon (id 5) evoluciona en 6 → buscar_base(5)
+      Charmander (id 4) evoluciona en 5 → buscar_base(4)
         nadie evoluciona en 4 → caso base, devuelve Charmander
       ← Charmander
     ← Charmander
-  recorro hacia adelante: Charmander → Charmeleon → Charizard → fin
+  cadena_desde(4) → ["Charmander"] + cadena_desde(5)
+    cadena_desde(5) → ["Charmeleon"] + cadena_desde(6)
+      cadena_desde(6) → Charizard no evoluciona → caso base, devuelve ["Charizard"]
   ← ["Charmander", "Charmeleon", "Charizard"]
 ```
 
