@@ -9,7 +9,7 @@ Fecha de esta versión del archivo:
 | E1 | 11-09-2026 | Claude | Guía de consulta de dudas en el paso a paso y verificar que lo realice correctamente | Guía de consulta, sin código generado | Modifiqué el código completando los puntos indicados. Elegimos el tema y los datos del catálogo | Neila, Cristian Nicolás |
 | E2 | 19-09-2026 | Claude | docs (Interacción con archivos .MD) | En base al código generado y pruebas, actualizar PROTOCOLO_PRUEBAS.md INFORME.md según corresponda | Se agregó la función recursiva, un método auxiliar para buscar pokemon por id y sus métodos auxiliares, y se actualiza el menu del main agregando esta funcionalidad | Lenzuen, Maximiliano Tomas |
 | E2 | 20-09-2026 | Claude | Guía para consultas de dudas y revisión del código | Clases Pokemon y Pokedex, función recursiva hacia adelante, try/except en la opción 5, ajuste de P04 y P17 | Revisé lo generado y probé los cambios. | Neila, Cristian Nicolás |
-| E3 |  |  |  |  |  |  |
+| E3 | 04-10-2026 | Claude | Guía paso a paso para armar los TADs y revisión del código | ListaEnlazada con nodos e iterador, Pila, Cola, clase Equipo con tope y la conexión en el menú | Decidí qué guarda cada estructura (equipo, historial, turnos), elegí los Pokémon del equipo y ejecuté las pruebas del protocolo | Neila, Cristian Nicolás |
 | E4 |  |  |  |  |  |  |
 | E5 |  |  |  |  |  |  |
 | E6 |  |  |  |  |  |  |
