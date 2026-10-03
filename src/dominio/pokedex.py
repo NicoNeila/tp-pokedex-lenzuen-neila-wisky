@@ -20,6 +20,11 @@ class Pokedex:
         self.agregar(Pokemon(7, "Squirtle", "Agua", "", 8))
         self.agregar(Pokemon(8, "Wartortle", "Agua", "", 9))
         self.agregar(Pokemon(9, "Blastoise", "Agua", "", None))
+        self.agregar(Pokemon(254, "Sceptile", "Planta", "", None))
+        self.agregar(Pokemon(282, "Gardevoir", "Hada", "Psiquico", None))
+        self.agregar(Pokemon(362, "Walrein", "Hielo", "Agua", None))
+        self.agregar(Pokemon(464, "Rhyperior", "Roca", "Tierra", None))
+        self.agregar(Pokemon(862, "Obstagoon", "Siniestro", "Normal", None))
 
     def listar(self):
         for pokemon in self.pokemones:
