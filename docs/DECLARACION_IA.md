@@ -10,7 +10,7 @@ Fecha de esta versión del archivo:
 | E2 | 19-09-2026 | Claude | docs (Interacción con archivos .MD) | En base al código generado y pruebas, actualizar PROTOCOLO_PRUEBAS.md INFORME.md según corresponda | Se agregó la función recursiva, un método auxiliar para buscar pokemon por id y sus métodos auxiliares, y se actualiza el menu del main agregando esta funcionalidad | Lenzuen, Maximiliano Tomas |
 | E2 | 20-09-2026 | Claude | Guía para consultas de dudas y revisión del código | Clases Pokemon y Pokedex, función recursiva hacia adelante, try/except en la opción 5, ajuste de P04 y P17 | Revisé lo generado y probé los cambios. | Neila, Cristian Nicolás |
 | E3 | 04-10-2026 | Claude | Guía paso a paso para armar los TADs y revisión del código | ListaEnlazada con nodos e iterador, Pila, Cola, clase Equipo con tope y la conexión en el menú | Decidí qué guarda cada estructura (equipo, historial, turnos), elegí los Pokémon del equipo y ejecuté las pruebas del protocolo | Neila, Cristian Nicolás |
-| E4 |  |  |  |  |  |  |
+| E4 | 02-11-2026 | Claude | Guía para verificar paso a paso | Búsqueda lineal y binaria, ordenamientos por selección, inserción y shell, métodos de orden y búsqueda en Pokedex, opciones 2, 3 y 4 del menú, script de mediciones, sección 5 del informe y textos del protocolo | Revisé el código y lo subí por partes a la rama cuarta-entrega. Corrí en Google Colab las pruebas P09–P12, la regresión y las mediciones, y controlé que los resultados fueran los esperados | Neila, Cristian Nicolás |
 | E5 |  |  |  |  |  |  |
 | E6 |  |  |  |  |  |  |
 
