@@ -1,9 +1,20 @@
 from src.config import TEMA
-from src.dominio.pokedex import Pokedex
+from src.dominio.pokedex import Pokedex, CRITERIOS
 from src.dominio.equipo import Equipo
 from src.tads.pila import Pila
 from src.tads.cola import Cola
 from src.excepciones import ColeccionLlenaError, PilaVaciaError, ColaVaciaError
+from src.algoritmos.ordenamiento import ordenar_seleccion, ordenar_insercion, ordenar_shell
+
+# opción del submenú -> criterio de CRITERIOS
+OPCIONES_CRITERIO = {"1": "nombre", "2": "numero", "3": "tipo"}
+
+# opción del submenú -> (texto, función de ordenamiento)
+ALGORITMOS = {
+    "1": ("selección", ordenar_seleccion),
+    "2": ("inserción", ordenar_insercion),
+    "3": ("shell", ordenar_shell),
+}
 
 TEMAS = {
     "pokedex": "Pokédex",
@@ -44,6 +55,74 @@ def operacion_recursiva(dex):
         print("No existe ese Pokemon.")
         return
     print(" -> ".join(cadena))
+
+
+def mostrar_detalle(dex, pokemon):
+    print(f"N.º {pokemon.id} — {pokemon.nombre}")
+    print(f"  Tipo: {pokemon.tipos()}")
+    if pokemon.evolucion is None:
+        print("  Evoluciona a: -")
+    else:
+        siguiente = dex.buscar_por_id(pokemon.evolucion)
+        print(f"  Evoluciona a: {siguiente.nombre}")
+
+
+def ver_detalle(dex):
+    texto = input("Id o nombre del Pokemon: ").strip()
+    if texto == "":
+        print("No ingresaste nada.")
+        return
+    if texto.isdigit():
+        pokemon = dex.buscar_por_id(int(texto))
+    else:
+        pokemon = dex.buscar_por_nombre(texto)
+    if pokemon is None:
+        print("No existe ese Pokemon.")
+        return
+    mostrar_detalle(dex, pokemon)
+
+
+def buscar(dex):
+    print("Buscar por: 1) Nombre (lineal)  2) Nombre (binaria)")
+    tipo = input("> ").strip()
+    if tipo != "1" and tipo != "2":
+        print("Opción inválida.")
+        return
+    nombre = input("Ingresá el nombre: ").strip()
+    if nombre == "":
+        print("No ingresaste nada.")
+        return
+    if tipo == "1":
+        pokemon = dex.buscar_por_nombre(nombre)
+    else:
+        # la binaria solo sirve si está ordenado por nombre: si no, ordena y avisa
+        if not dex.esta_ordenado_por("nombre"):
+            dex.ordenar("nombre", ordenar_insercion)
+            print("El catálogo no estaba ordenado por nombre: "
+                  "lo ordené por nombre (inserción) para usar búsqueda binaria.")
+        pokemon = dex.buscar_por_nombre_binaria(nombre)
+    if pokemon is None:
+        print(f"No se encontró ningún Pokemon llamado '{nombre}'.")
+        return
+    mostrar_detalle(dex, pokemon)
+
+
+def ordenar(dex):
+    print("Ordenar por: 1) Nombre  2) Número  3) Tipo principal")
+    criterio = OPCIONES_CRITERIO.get(input("> ").strip())
+    if criterio is None:
+        print("Opción inválida.")
+        return
+    print("[1] Selección  [2] Inserción  [3] Shell")
+    algoritmo = ALGORITMOS.get(input("> ").strip())
+    if algoritmo is None:
+        print("Opción inválida.")
+        return
+    nombre_algoritmo, funcion = algoritmo
+    dex.ordenar(criterio, funcion)
+    nombre_criterio, _ = CRITERIOS[criterio]
+    print(f"Catálogo ordenado por {nombre_criterio} ({nombre_algoritmo}).")
+    dex.listar()
 
 
 def listar_equipo(equipo):
@@ -113,6 +192,12 @@ def main():
             print("Chau.")
         elif opcion == "1":
             dex.listar()
+        elif opcion == "2":
+            ver_detalle(dex)
+        elif opcion == "3":
+            buscar(dex)
+        elif opcion == "4":
+            ordenar(dex)
         elif opcion == "5":
             operacion_recursiva(dex)
         elif opcion == "6":
@@ -121,7 +206,7 @@ def main():
             deshacer(equipo, historial)
         elif opcion == "8":
             siguiente_turno(turnos)
-        elif opcion in {"2", "3", "4", "9"}:
+        elif opcion == "9":
             pendiente()
         else:
             print("Opción inválida.")
