@@ -115,11 +115,6 @@ Cada paso multiplica n por 10:
 - Inserción con la lista ya ordenada: se multiplica por unos 9 y 11 → su mejor caso, O(n).
 - Shell: con n = 1400 es unas 25 veces más rápido que inserción y 45 veces más rápido que selección.
 
-Mediciones (`time.perf_counter`):
-
-| Operación | n | segundos |
-| --- | --- | --- |
-|  |  |  |
 
 ## 6. Persistencia (E5)
 
