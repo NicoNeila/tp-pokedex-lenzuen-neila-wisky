@@ -1,0 +1,16 @@
+id,nombre,tipo1,tipo2,evolucion
+1,Bulbasaur,Planta,Veneno,2
+2,Ivysaur,Planta,Veneno,3
+3,Venusaur,Planta,Veneno,
+4,Charmander,Fuego,,5
+5,Charmeleon,Fuego,,6
+6,Charizard,Fuego,Volador,
+7,Squirtle,Agua,,8
+8,Wartortle,Agua,,9
+9,Blastoise,Agua,,
+254,Sceptile,Planta,,
+282,Gardevoir,Hada,Psiquico,
+362,Walrein,Hielo,Agua,
+464,Rhyperior,Roca,Tierra,
+862,Obstagoon,Siniestro,Normal,
+900,Articunox,Normal,,

@@ -118,9 +118,33 @@ Cada paso multiplica n por 10:
 
 ## 6. Persistencia (E5)
 
-- Layout del registro binario (campos, `struct`, anchos):
-- Header:
-- Cómo se actualiza un registro por posición:
+La aplicación carga y guarda el catálogo actual en `data/catalogo.txt`. El
+archivo está codificado en UTF-8, usa una fila de encabezado y una fila por
+Pokémon. Las columnas son `id,nombre,tipo1,tipo2,evolucion`; la evolución
+vacía representa `None`. La aplicación conserva el catálogo de 14 Pokémon que
+ya utilizaba el modelo; `data/pokedex.txt` es otro dataset, más amplio, que
+incluye estadísticas no presentes en la clase `Pokemon`.
+
+El archivo `data/catalogo.bin` se genera desde el menú y usa orden
+little-endian (`<`), sin padding nativo:
+
+| Parte | Formato `struct` | Tamaño | Campos |
+| --- | --- | ---: | --- |
+| Header | `<4s1sI` | 9 bytes | magia `AYED` (4 bytes), tema `P` (1 byte), cantidad (uint32, 4 bytes) |
+| Registro | `<I20s12s12sI` | 52 bytes | id (uint32), nombre (20 bytes UTF-8), tipo1 (12 bytes), tipo2 (12 bytes), evolución (uint32; 0 significa sin evolución) |
+
+Los textos ocupan anchos fijos en bytes UTF-8 y se completan con bytes nulos.
+No se truncan: un valor que excede el ancho se rechaza. Al cargar se verifica
+la magia, el tema y que el tamaño sea exactamente
+`9 + cantidad * 52` bytes. `data/catalogo.bin` es generado localmente y no se
+incluye en el repositorio.
+
+Para actualizar un registro binario por posición (índice 0-based) se calcula
+`desplazamiento = 9 + posicion * 52`. Se abre el archivo como `r+b`, se hace
+`seek(desplazamiento)` y se escriben los 52 bytes del nuevo registro, sin
+reescribir los demás registros. La opción de alta, baja y modificación del CLI
+persiste el catálogo de texto; las operaciones binarias se ofrecen por
+separado desde la opción 9.
 
 ## 7. Reparto de trabajo (E6)
 
