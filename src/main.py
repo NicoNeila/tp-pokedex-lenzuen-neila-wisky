@@ -1,10 +1,28 @@
+from pathlib import Path
+
 from src.config import TEMA
 from src.dominio.pokedex import Pokedex, CRITERIOS
 from src.dominio.equipo import Equipo
+from src.dominio.pokemon import Pokemon
 from src.tads.pila import Pila
 from src.tads.cola import Cola
-from src.excepciones import ColeccionLlenaError, PilaVaciaError, ColaVaciaError
+from src.excepciones import (
+    ArchivoInvalidoError,
+    ColeccionLlenaError,
+    PilaVaciaError,
+    ColaVaciaError,
+)
 from src.algoritmos.ordenamiento import ordenar_seleccion, ordenar_insercion, ordenar_shell
+from src.persistencia.texto import (
+    ENCABEZADOS_POKEDEX,
+    cargar_texto,
+    guardar_texto,
+)
+from src.persistencia.binario import (
+    actualizar_registro,
+    cargar_binario,
+    guardar_binario,
+)
 
 # opción del submenú -> criterio de CRITERIOS
 OPCIONES_CRITERIO = {"1": "nombre", "2": "numero", "3": "tipo"}
@@ -21,6 +39,10 @@ TEMAS = {
     "recetario": "Recetario",
     "musica": "Biblioteca musical",
 }
+
+RUTA_DATOS = Path(__file__).resolve().parents[1] / "data"
+RUTA_CATALOGO = RUTA_DATOS / "catalogo.txt"
+RUTA_BINARIO = RUTA_DATOS / "catalogo.bin"
 
 
 def pendiente():
@@ -40,7 +62,264 @@ def mostrar_menu():
     print("7. Historial -Deshacer-")
     print("8. Cola -Siguiente turno-")
     print("9. Guardar / cargar archivos")
+    print("10. Alta / baja / modificación del catálogo")
     print("0. Salir")
+
+
+def _pokemon_a_fila(pokemon):
+    return {
+        "id": str(pokemon.id),
+        "nombre": pokemon.nombre,
+        "tipo1": pokemon.tipo1,
+        "tipo2": pokemon.tipo2,
+        "evolucion": (
+            "" if pokemon.evolucion is None else str(pokemon.evolucion)
+        ),
+    }
+
+
+def _fila_a_pokemon(fila):
+    try:
+        id_pokemon = int(fila["id"])
+        nombre = fila["nombre"].strip()
+        tipo1 = fila["tipo1"].strip()
+        tipo2 = fila["tipo2"].strip()
+        texto_evolucion = fila["evolucion"].strip()
+        evolucion = None if texto_evolucion == "" else int(texto_evolucion)
+    except (KeyError, AttributeError, TypeError, ValueError) as error:
+        raise ValueError(f"registro incompleto o con valores inválidos: {error}") from error
+
+    return Pokemon(id_pokemon, nombre, tipo1, tipo2, evolucion)
+
+
+def _validar_catalogo(pokemones):
+    ids = set()
+    por_id = {}
+    for pokemon in pokemones:
+        if pokemon.id <= 0:
+            raise ValueError("los ids deben ser enteros positivos.")
+        if pokemon.id in ids:
+            raise ValueError(f"el id {pokemon.id} está repetido.")
+        if not pokemon.nombre.strip() or not pokemon.tipo1.strip():
+            raise ValueError("cada Pokémon debe tener nombre y tipo principal.")
+        ids.add(pokemon.id)
+        por_id[pokemon.id] = pokemon
+
+    for pokemon in pokemones:
+        if pokemon.evolucion is not None and pokemon.evolucion not in por_id:
+            raise ValueError(
+                f"la evolución {pokemon.evolucion} de {pokemon.nombre} "
+                "no existe en el catálogo."
+            )
+
+    for pokemon in pokemones:
+        visitados = set()
+        actual = pokemon
+        while actual.evolucion is not None:
+            if actual.id in visitados:
+                raise ValueError("el catálogo contiene un ciclo de evoluciones.")
+            visitados.add(actual.id)
+            actual = por_id[actual.evolucion]
+
+
+def _filas_a_pokemones(filas):
+    try:
+        pokemones = [_fila_a_pokemon(fila) for fila in filas]
+        _validar_catalogo(pokemones)
+        return pokemones
+    except ValueError as error:
+        raise ArchivoInvalidoError(f"Catálogo inválido: {error}") from error
+
+
+def _guardar_catalogo(pokemones):
+    _validar_catalogo(pokemones)
+    filas = [_pokemon_a_fila(pokemon) for pokemon in pokemones]
+    guardar_texto(RUTA_CATALOGO, filas, ENCABEZADOS_POKEDEX)
+
+
+def _cargar_catalogo_texto():
+    return _filas_a_pokemones(cargar_texto(RUTA_CATALOGO))
+
+
+def _cargar_catalogo_binario():
+    return _filas_a_pokemones(cargar_binario(RUTA_BINARIO))
+
+
+def _reemplazar_catalogo(dex, pokemones):
+    _validar_catalogo(pokemones)
+    _guardar_catalogo(pokemones)
+    dex.pokemones = pokemones
+    dex.orden = None
+
+
+def manejar_archivos(dex):
+    print("Archivos: 1) Guardar TXT  2) Cargar TXT")
+    print("          3) Guardar BIN  4) Cargar BIN")
+    print("          5) Actualizar registro BIN por posición")
+    opcion = input("> ").strip()
+
+    try:
+        if opcion == "1":
+            _guardar_catalogo(dex.pokemones)
+            print(f"Catálogo guardado en {RUTA_CATALOGO}.")
+        elif opcion == "2":
+            dex.pokemones = _cargar_catalogo_texto()
+            dex.orden = None
+            print("Catálogo cargado desde TXT.")
+        elif opcion == "3":
+            guardar_binario(RUTA_BINARIO, dex.pokemones)
+            print(f"Catálogo guardado en {RUTA_BINARIO}.")
+        elif opcion == "4":
+            dex.pokemones = _cargar_catalogo_binario()
+            dex.orden = None
+            print("Catálogo cargado desde BIN.")
+        elif opcion == "5":
+            catalogo_binario = _cargar_catalogo_binario()
+            posicion = int(input("Posición 0-based del registro: ").strip())
+            if posicion < 0 or posicion >= len(catalogo_binario):
+                print("Posición fuera del catálogo.")
+                return
+
+            actual = catalogo_binario[posicion]
+            print(f"Registro {posicion}: N.º {actual.id} — {actual.nombre}")
+            nombre = input(f"Nombre [{actual.nombre}]: ").strip() or actual.nombre
+            tipo1 = input(f"Tipo principal [{actual.tipo1}]: ").strip() or actual.tipo1
+            tipo2_ingresado = input(
+                f"Tipo secundario [{actual.tipo2}] (vacío conserva, - elimina): "
+            ).strip()
+            tipo2 = (
+                actual.tipo2
+                if tipo2_ingresado == ""
+                else "" if tipo2_ingresado == "-" else tipo2_ingresado
+            )
+            actualizado = Pokemon(
+                actual.id,
+                nombre,
+                tipo1,
+                tipo2,
+                actual.evolucion,
+            )
+            catalogo_binario[posicion] = actualizado
+            _validar_catalogo(catalogo_binario)
+            actualizar_registro(RUTA_BINARIO, posicion, actualizado)
+            dex.pokemones = _cargar_catalogo_binario()
+            dex.orden = None
+            print("Registro binario actualizado por posición.")
+            print("El TXT no cambia; para persistir allí, guardalo también como TXT.")
+        else:
+            print("Opción inválida.")
+    except (ArchivoInvalidoError, OSError, ValueError) as error:
+        print(f"No se pudo completar la operación: {error}")
+
+
+def administrar_catalogo(dex):
+    print("Catálogo: 1) Alta  2) Baja  3) Modificación")
+    opcion = input("> ").strip()
+
+    if opcion == "1":
+        try:
+            id_pokemon = int(input("Id: ").strip())
+            nombre = input("Nombre: ").strip()
+            tipo1 = input("Tipo principal: ").strip()
+            tipo2 = input("Tipo secundario (vacío si no tiene): ").strip()
+            texto_evolucion = input(
+                "Id de evolución (vacío si no tiene): "
+            ).strip()
+            evolucion = None if texto_evolucion == "" else int(texto_evolucion)
+            nuevo = Pokemon(id_pokemon, nombre, tipo1, tipo2, evolucion)
+            _reemplazar_catalogo(dex, dex.pokemones + [nuevo])
+            print("Pokémon agregado y guardado en el TXT.")
+        except (ArchivoInvalidoError, OSError, ValueError) as error:
+            print(f"No se pudo agregar: {error}")
+        return
+
+    if opcion == "2":
+        try:
+            id_pokemon = int(input("Id a eliminar: ").strip())
+        except ValueError:
+            print("El id debe ser un entero.")
+            return
+
+        if dex.buscar_por_id(id_pokemon) is None:
+            print("No existe ese Pokémon.")
+            return
+
+        catalogo = []
+        for pokemon in dex.pokemones:
+            if pokemon.id == id_pokemon:
+                continue
+            if pokemon.evolucion == id_pokemon:
+                pokemon = Pokemon(
+                    pokemon.id,
+                    pokemon.nombre,
+                    pokemon.tipo1,
+                    pokemon.tipo2,
+                    None,
+                )
+            catalogo.append(pokemon)
+
+        try:
+            _reemplazar_catalogo(dex, catalogo)
+            print("Pokémon eliminado y cambio guardado en el TXT.")
+        except (ArchivoInvalidoError, OSError, ValueError) as error:
+            print(f"No se pudo guardar la baja: {error}")
+        return
+
+    if opcion == "3":
+        try:
+            id_pokemon = int(input("Id a modificar: ").strip())
+        except ValueError:
+            print("El id debe ser un entero.")
+            return
+
+        actual = dex.buscar_por_id(id_pokemon)
+        if actual is None:
+            print("No existe ese Pokémon.")
+            return
+
+        print("Dejá un campo vacío para conservarlo.")
+        nombre = input(f"Nombre [{actual.nombre}]: ").strip() or actual.nombre
+        tipo1 = input(f"Tipo principal [{actual.tipo1}]: ").strip() or actual.tipo1
+        texto_tipo2 = input(
+            f"Tipo secundario [{actual.tipo2}] (vacío conserva, - elimina): "
+        ).strip()
+        tipo2 = (
+            actual.tipo2
+            if texto_tipo2 == ""
+            else "" if texto_tipo2 == "-" else texto_tipo2
+        )
+        texto_evolucion = input(
+            "Id de evolución "
+            f"[{actual.evolucion if actual.evolucion is not None else '-'}] "
+            "(vacío conserva, - elimina): "
+        ).strip()
+
+        try:
+            if texto_evolucion == "":
+                evolucion = actual.evolucion
+            elif texto_evolucion == "-":
+                evolucion = None
+            else:
+                evolucion = int(texto_evolucion)
+
+            actualizado = Pokemon(
+                actual.id,
+                nombre,
+                tipo1,
+                tipo2,
+                evolucion,
+            )
+            catalogo = [
+                actualizado if pokemon.id == id_pokemon else pokemon
+                for pokemon in dex.pokemones
+            ]
+            _reemplazar_catalogo(dex, catalogo)
+            print("Pokémon modificado y cambio guardado en el TXT.")
+        except (ArchivoInvalidoError, OSError, ValueError) as error:
+            print(f"No se pudo guardar la modificación: {error}")
+        return
+
+    print("Opción inválida.")
 
 
 def operacion_recursiva(dex):
@@ -179,7 +458,17 @@ def main():
         return
 
     dex = Pokedex()
-    dex.cargar_datos_iniciales()
+    try:
+        RUTA_DATOS.mkdir(parents=True, exist_ok=True)
+        if RUTA_CATALOGO.exists():
+            dex.pokemones = _cargar_catalogo_texto()
+        else:
+            dex.cargar_datos_iniciales()
+            _guardar_catalogo(dex.pokemones)
+    except (ArchivoInvalidoError, OSError, ValueError) as error:
+        print(f"No se pudo iniciar el catálogo: {error}")
+        return
+
     equipo = Equipo()
     historial = Pila()
     turnos = Cola()
@@ -207,7 +496,9 @@ def main():
         elif opcion == "8":
             siguiente_turno(turnos)
         elif opcion == "9":
-            pendiente()
+            manejar_archivos(dex)
+        elif opcion == "10":
+            administrar_catalogo(dex)
         else:
             print("Opción inválida.")
 

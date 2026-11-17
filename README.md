@@ -24,6 +24,15 @@ En Windows, si `python` no anda: `py -3 -m src.main`.
 
 Solo biblioteca estándar. No hay `requirements.txt` a propósito.
 
+## Persistencia (E5)
+
+El catálogo que usa la aplicación se carga desde `data/catalogo.txt`. Si ese
+archivo no existe, se crea con el catálogo inicial de 14 Pokémon. La opción 9
+del menú permite guardar/cargar TXT o BIN y actualizar un registro binario por
+posición; la opción 10 permite dar de alta, baja y modificar Pokémon, cambios
+que se guardan en el TXT. El archivo `data/catalogo.bin` se genera al usar la
+opción de guardado binario y está excluido de Git.
+
 ## Entregas
 
 Cada vencimiento se marca con un tag. Ver `GIT.md`.

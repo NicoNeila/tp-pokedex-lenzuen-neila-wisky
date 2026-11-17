@@ -11,3 +11,10 @@ Archivos de **texto simple**: codificación UTF-8, **un registro por línea**, c
 | Biblioteca musical | `canciones.txt`, `versiones.txt` | `cancion_id` es versión de `version_de_id` (`cover`, `live`, `remix`) |
 
 No hardcodees las filas en el código: leé los `.txt` (recién en E5).
+
+La aplicación de E5 usa `catalogo.txt` para persistir el modelo actual de
+Pokédex (`id`, `nombre`, `tipo1`, `tipo2`, `evolucion`). Ese catálogo inicial
+contiene los 14 Pokémon que ya cargaba el programa; no es una conversión del
+dataset ampliado de `pokedex.txt`, que además tiene estadísticas y 70 filas.
+La aplicación puede generar `catalogo.bin` desde su menú; ese binario es local
+y no se versiona.
