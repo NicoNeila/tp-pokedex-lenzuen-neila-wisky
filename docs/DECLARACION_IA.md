@@ -11,7 +11,7 @@ Fecha de esta versión del archivo: 02-11-2026
 | E2 | 20-09-2026 | Claude | Guía para consultas de dudas y revisión del código | Clases Pokemon y Pokedex, función recursiva hacia adelante, try/except en la opción 5, ajuste de P04 y P17 | Revisé lo generado y probé los cambios. | Neila, Cristian Nicolás |
 | E3 | 04-10-2026 | Claude | Guía paso a paso para armar los TADs y revisión del código | ListaEnlazada con nodos e iterador, Pila, Cola, clase Equipo con tope y la conexión en el menú | Decidí qué guarda cada estructura (equipo, historial, turnos), elegí los Pokémon del equipo y ejecuté las pruebas del protocolo | Neila, Cristian Nicolás |
 | E4 | 02-11-2026 | Claude | Guía para verificar paso a paso | Búsqueda lineal y binaria, ordenamientos por selección, inserción y shell, métodos de orden y búsqueda en Pokedex, opciones 2, 3 y 4 del menú, script de mediciones, sección 5 del informe y textos del protocolo | Revisé el código y lo subí por partes a la rama cuarta-entrega. Corrí en Google Colab las pruebas P09–P12, la regresión y las mediciones, y controlé que los resultados fueran los esperados | Neila, Cristian Nicolás |
-| E5 | 16-11-2026 | Copilot  | Guía en herramientas de python para escribir en txt o binario, leer y demas | Lenzuen, Maximiliano Tomas |
+| E5 | 16-11-2026 | Copilot | Guía en herramientas de Python para escribir y leer txt y binario | Consultas sobre csv y struct para armar texto.py y binario.py (carga, guardado y actualización por posición), y las opciones 9 y 10 del menú | Integré el código en el proyecto, validé los datos del catálogo y probé guardar, cargar y el ABM desde el menú | Lenzuen, Maximiliano Tomas |
 | E6 |  |  |  |  |  |  |
 
 Compromiso: cualquiera del grupo puede explicar cualquier archivo del tag.
