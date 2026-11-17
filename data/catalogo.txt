@@ -13,4 +13,3 @@ id,nombre,tipo1,tipo2,evolucion
 362,Walrein,Hielo,Agua,
 464,Rhyperior,Roca,Tierra,
 862,Obstagoon,Siniestro,Normal,
-900,Articunox,Normal,,
