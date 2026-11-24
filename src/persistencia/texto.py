@@ -8,20 +8,25 @@ ENCABEZADOS_POKEDEX = [
     "nombre",
     "tipo1",
     "tipo2",
-    "evolucion",
+    "hp",
+    "ataque",
+    "defensa",
+    "velocidad",
+    "generacion",
 ]
 
+ENCABEZADOS_EVOLUCIONES = ["origen_id", "destino_id"]
 
-def cargar_texto(ruta):
-    """Carga un CSV UTF-8 y devuelve una lista de diccionarios."""
+
+def cargar_texto(ruta, encabezados=ENCABEZADOS_POKEDEX):
     try:
         with open(ruta, "r", encoding="utf-8", newline="") as archivo:
             lector = csv.DictReader(archivo)
 
-            if lector.fieldnames != ENCABEZADOS_POKEDEX:
+            if lector.fieldnames != encabezados:
                 raise ArchivoInvalidoError(
                     f"Encabezado inválido en {ruta}. "
-                    f"Se esperaba: {','.join(ENCABEZADOS_POKEDEX)}"
+                    f"Se esperaba: {','.join(encabezados)}"
                 )
 
             filas = []
@@ -41,7 +46,6 @@ def cargar_texto(ruta):
 
 
 def guardar_texto(ruta, filas, encabezados=ENCABEZADOS_POKEDEX):
-    """Guarda filas como CSV UTF-8 con encabezado."""
     try:
         with open(ruta, "w", encoding="utf-8", newline="") as archivo:
             escritor = csv.DictWriter(
