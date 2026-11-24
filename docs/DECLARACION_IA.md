@@ -2,7 +2,7 @@
 
 Actualizar **en cada entrega**. Si no usaron IA, dejar una fila que lo diga. No declarar cuando sí se usó anula la entrega.
 
-Fecha de esta versión del archivo: 02-11-2026
+Fecha de esta versión del archivo: 24-11-2026
 
 | Entrega | Fecha | Herramienta (ChatGPT, Cursor, Copilot, otra) | Para qué (diseño, código, debug, docs) | Qué pegaron o generaron | Qué reescribieron / revisaron a mano | Integrante |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -12,6 +12,6 @@ Fecha de esta versión del archivo: 02-11-2026
 | E3 | 04-10-2026 | Claude | Guía paso a paso para armar los TADs y revisión del código | ListaEnlazada con nodos e iterador, Pila, Cola, clase Equipo con tope y la conexión en el menú | Decidí qué guarda cada estructura (equipo, historial, turnos), elegí los Pokémon del equipo y ejecuté las pruebas del protocolo | Neila, Cristian Nicolás |
 | E4 | 02-11-2026 | Claude | Guía para verificar paso a paso | Búsqueda lineal y binaria, ordenamientos por selección, inserción y shell, métodos de orden y búsqueda en Pokedex, opciones 2, 3 y 4 del menú, script de mediciones, sección 5 del informe y textos del protocolo | Revisé el código y lo subí por partes a la rama cuarta-entrega. Corrí en Google Colab las pruebas P09–P12, la regresión y las mediciones, y controlé que los resultados fueran los esperados | Neila, Cristian Nicolás |
 | E5 | 16-11-2026 | Copilot | Guía en herramientas de Python para escribir y leer txt y binario | Consultas sobre csv y struct para armar texto.py y binario.py (carga, guardado y actualización por posición), y las opciones 9 y 10 del menú | Integré el código en el proyecto, validé los datos del catálogo y probé guardar, cargar y el ABM desde el menú | Lenzuen, Maximiliano Tomas |
-| E6 |  |  |  |  |  |  |
+| E6 | 24-11-2026 | Claude | Guía paso a paso, código y docs | Consultas sobre la adaptación al dataset de la cátedra: clase Pokemon, recursión de la opción 5, texto, binario de 58 bytes y ABM; actualización del informe §2–§7, protocolo P01–P22 y README | Subí los cambios por partes a la rama sexta-entrega, ejecuté el protocolo completo, revisé las trazas de recursión y el layout del binario | Neila, Cristian Nicolás |
 
 Compromiso: cualquiera del grupo puede explicar cualquier archivo del tag.
