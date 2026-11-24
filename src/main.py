@@ -15,6 +15,7 @@ from src.excepciones import (
 from src.algoritmos.ordenamiento import ordenar_seleccion, ordenar_insercion, ordenar_shell
 from src.persistencia.texto import (
     ENCABEZADOS_POKEDEX,
+    ENCABEZADOS_EVOLUCIONES,
     cargar_texto,
     guardar_texto,
 )
@@ -24,10 +25,8 @@ from src.persistencia.binario import (
     guardar_binario,
 )
 
-# opción del submenú -> criterio de CRITERIOS
 OPCIONES_CRITERIO = {"1": "nombre", "2": "numero", "3": "tipo"}
 
-# opción del submenú -> (texto, función de ordenamiento)
 ALGORITMOS = {
     "1": ("selección", ordenar_seleccion),
     "2": ("inserción", ordenar_insercion),
@@ -41,8 +40,12 @@ TEMAS = {
 }
 
 RUTA_DATOS = Path(__file__).resolve().parents[1] / "data"
+RUTA_POKEDEX = RUTA_DATOS / "pokedex.txt"
+RUTA_EVOLUCIONES = RUTA_DATOS / "evoluciones.txt"
 RUTA_CATALOGO = RUTA_DATOS / "catalogo.txt"
 RUTA_BINARIO = RUTA_DATOS / "catalogo.bin"
+
+CAMPOS_NUMERICOS = ["hp", "ataque", "defensa", "velocidad", "generacion"]
 
 
 def pendiente():
@@ -67,15 +70,15 @@ def mostrar_menu():
 
 
 def _pokemon_a_fila(pokemon):
-    return {
+    fila = {
         "id": str(pokemon.id),
         "nombre": pokemon.nombre,
         "tipo1": pokemon.tipo1,
         "tipo2": pokemon.tipo2,
-        "evolucion": (
-            "" if pokemon.evolucion is None else str(pokemon.evolucion)
-        ),
     }
+    for campo in CAMPOS_NUMERICOS:
+        fila[campo] = str(getattr(pokemon, campo))
+    return fila
 
 
 def _fila_a_pokemon(fila):
@@ -84,17 +87,17 @@ def _fila_a_pokemon(fila):
         nombre = fila["nombre"].strip()
         tipo1 = fila["tipo1"].strip()
         tipo2 = fila["tipo2"].strip()
-        texto_evolucion = fila["evolucion"].strip()
-        evolucion = None if texto_evolucion == "" else int(texto_evolucion)
+        numeros = []
+        for campo in CAMPOS_NUMERICOS:
+            numeros.append(int(fila[campo]))
     except (KeyError, AttributeError, TypeError, ValueError) as error:
         raise ValueError(f"registro incompleto o con valores inválidos: {error}") from error
 
-    return Pokemon(id_pokemon, nombre, tipo1, tipo2, evolucion)
+    return Pokemon(id_pokemon, nombre, tipo1, tipo2, *numeros)
 
 
 def _validar_catalogo(pokemones):
     ids = set()
-    por_id = {}
     for pokemon in pokemones:
         if pokemon.id <= 0:
             raise ValueError("los ids deben ser enteros positivos.")
@@ -102,24 +105,10 @@ def _validar_catalogo(pokemones):
             raise ValueError(f"el id {pokemon.id} está repetido.")
         if not pokemon.nombre.strip() or not pokemon.tipo1.strip():
             raise ValueError("cada Pokémon debe tener nombre y tipo principal.")
+        for campo in CAMPOS_NUMERICOS:
+            if getattr(pokemon, campo) < 0:
+                raise ValueError(f"{campo} no puede ser negativo.")
         ids.add(pokemon.id)
-        por_id[pokemon.id] = pokemon
-
-    for pokemon in pokemones:
-        if pokemon.evolucion is not None and pokemon.evolucion not in por_id:
-            raise ValueError(
-                f"la evolución {pokemon.evolucion} de {pokemon.nombre} "
-                "no existe en el catálogo."
-            )
-
-    for pokemon in pokemones:
-        visitados = set()
-        actual = pokemon
-        while actual.evolucion is not None:
-            if actual.id in visitados:
-                raise ValueError("el catálogo contiene un ciclo de evoluciones.")
-            visitados.add(actual.id)
-            actual = por_id[actual.evolucion]
 
 
 def _filas_a_pokemones(filas):
@@ -143,6 +132,26 @@ def _cargar_catalogo_texto():
 
 def _cargar_catalogo_binario():
     return _filas_a_pokemones(cargar_binario(RUTA_BINARIO))
+
+
+def _cargar_evoluciones():
+    evoluciones = []
+    for fila in cargar_texto(RUTA_EVOLUCIONES, ENCABEZADOS_EVOLUCIONES):
+        try:
+            evoluciones.append((int(fila["origen_id"]), int(fila["destino_id"])))
+        except ValueError as error:
+            raise ArchivoInvalidoError(f"Evolución inválida: {error}") from error
+    return evoluciones
+
+
+def _pedir_entero(mensaje, actual=None):
+    if actual is None:
+        texto = input(f"{mensaje}: ").strip()
+    else:
+        texto = input(f"{mensaje} [{actual}]: ").strip()
+        if texto == "":
+            return actual
+    return int(texto)
 
 
 def _reemplazar_catalogo(dex, pokemones):
@@ -197,7 +206,11 @@ def manejar_archivos(dex):
                 nombre,
                 tipo1,
                 tipo2,
-                actual.evolucion,
+                actual.hp,
+                actual.ataque,
+                actual.defensa,
+                actual.velocidad,
+                actual.generacion,
             )
             catalogo_binario[posicion] = actualizado
             _validar_catalogo(catalogo_binario)
@@ -222,11 +235,10 @@ def administrar_catalogo(dex):
             nombre = input("Nombre: ").strip()
             tipo1 = input("Tipo principal: ").strip()
             tipo2 = input("Tipo secundario (vacío si no tiene): ").strip()
-            texto_evolucion = input(
-                "Id de evolución (vacío si no tiene): "
-            ).strip()
-            evolucion = None if texto_evolucion == "" else int(texto_evolucion)
-            nuevo = Pokemon(id_pokemon, nombre, tipo1, tipo2, evolucion)
+            numeros = []
+            for campo in CAMPOS_NUMERICOS:
+                numeros.append(_pedir_entero(campo.capitalize()))
+            nuevo = Pokemon(id_pokemon, nombre, tipo1, tipo2, *numeros)
             _reemplazar_catalogo(dex, dex.pokemones + [nuevo])
             print("Pokémon agregado y guardado en el TXT.")
         except (ArchivoInvalidoError, OSError, ValueError) as error:
@@ -246,17 +258,8 @@ def administrar_catalogo(dex):
 
         catalogo = []
         for pokemon in dex.pokemones:
-            if pokemon.id == id_pokemon:
-                continue
-            if pokemon.evolucion == id_pokemon:
-                pokemon = Pokemon(
-                    pokemon.id,
-                    pokemon.nombre,
-                    pokemon.tipo1,
-                    pokemon.tipo2,
-                    None,
-                )
-            catalogo.append(pokemon)
+            if pokemon.id != id_pokemon:
+                catalogo.append(pokemon)
 
         try:
             _reemplazar_catalogo(dex, catalogo)
@@ -288,26 +291,18 @@ def administrar_catalogo(dex):
             if texto_tipo2 == ""
             else "" if texto_tipo2 == "-" else texto_tipo2
         )
-        texto_evolucion = input(
-            "Id de evolución "
-            f"[{actual.evolucion if actual.evolucion is not None else '-'}] "
-            "(vacío conserva, - elimina): "
-        ).strip()
 
         try:
-            if texto_evolucion == "":
-                evolucion = actual.evolucion
-            elif texto_evolucion == "-":
-                evolucion = None
-            else:
-                evolucion = int(texto_evolucion)
+            numeros = []
+            for campo in CAMPOS_NUMERICOS:
+                numeros.append(_pedir_entero(campo.capitalize(), getattr(actual, campo)))
 
             actualizado = Pokemon(
                 actual.id,
                 nombre,
                 tipo1,
                 tipo2,
-                evolucion,
+                *numeros,
             )
             catalogo = [
                 actualizado if pokemon.id == id_pokemon else pokemon
@@ -329,21 +324,32 @@ def operacion_recursiva(dex):
     except ValueError:
         print("Tenes que ingresar un numero entero.")
         return
-    cadena = dex.cadena_evolutiva(id_pokemon)
-    if cadena == []:
+    cadenas = dex.cadenas_evolutivas(id_pokemon)
+    if cadenas == []:
         print("No existe ese Pokemon.")
         return
-    print(" -> ".join(cadena))
+    for cadena in cadenas:
+        print(" -> ".join(cadena))
 
 
 def mostrar_detalle(dex, pokemon):
     print(f"N.º {pokemon.id} — {pokemon.nombre}")
     print(f"  Tipo: {pokemon.tipos()}")
-    if pokemon.evolucion is None:
+    print(f"  HP {pokemon.hp} | Ataque {pokemon.ataque} | Defensa {pokemon.defensa}"
+          f" | Velocidad {pokemon.velocidad} | Generación {pokemon.generacion}")
+    anterior = dex.anterior_de(pokemon.id)
+    if anterior is None:
+        print("  Viene de: -")
+    else:
+        print(f"  Viene de: {anterior.nombre}")
+    siguientes = dex.siguientes_de(pokemon.id)
+    if siguientes == []:
         print("  Evoluciona a: -")
     else:
-        siguiente = dex.buscar_por_id(pokemon.evolucion)
-        print(f"  Evoluciona a: {siguiente.nombre}")
+        nombres = []
+        for siguiente in siguientes:
+            nombres.append(siguiente.nombre)
+        print(f"  Evoluciona a: {', '.join(nombres)}")
 
 
 def ver_detalle(dex):
@@ -374,7 +380,6 @@ def buscar(dex):
     if tipo == "1":
         pokemon = dex.buscar_por_nombre(nombre)
     else:
-        # la binaria solo sirve si está ordenado por nombre: si no, ordena y avisa
         if not dex.esta_ordenado_por("nombre"):
             dex.ordenar("nombre", ordenar_insercion)
             print("El catálogo no estaba ordenado por nombre: "
@@ -463,8 +468,9 @@ def main():
         if RUTA_CATALOGO.exists():
             dex.pokemones = _cargar_catalogo_texto()
         else:
-            dex.cargar_datos_iniciales()
+            dex.pokemones = _filas_a_pokemones(cargar_texto(RUTA_POKEDEX))
             _guardar_catalogo(dex.pokemones)
+        dex.evoluciones = _cargar_evoluciones()
     except (ArchivoInvalidoError, OSError, ValueError) as error:
         print(f"No se pudo iniciar el catálogo: {error}")
         return

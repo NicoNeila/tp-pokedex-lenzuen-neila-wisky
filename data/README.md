@@ -12,9 +12,7 @@ Archivos de **texto simple**: codificación UTF-8, **un registro por línea**, c
 
 No hardcodees las filas en el código: leé los `.txt` (recién en E5).
 
-La aplicación de E5 usa `catalogo.txt` para persistir el modelo actual de
-Pokédex (`id`, `nombre`, `tipo1`, `tipo2`, `evolucion`). Ese catálogo inicial
-contiene los 14 Pokémon que ya cargaba el programa; no es una conversión del
-dataset ampliado de `pokedex.txt`, que además tiene estadísticas y 70 filas.
-La aplicación puede generar `catalogo.bin` desde su menú; ese binario es local
-y no se versiona.
+La aplicación lee `pokedex.txt` y `evoluciones.txt` y no los modifica. La
+1ra vez copia `pokedex.txt` a `catalogo.txt`, es la copia de trabajo
+donde se guarda el alta, baja y modificación. `catalogo.txt` y `catalogo.bin`
+los genera el programa y no se suben al repositorio.

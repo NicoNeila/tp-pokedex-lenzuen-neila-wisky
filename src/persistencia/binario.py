@@ -1,38 +1,18 @@
-"""Registros de longitud fija con struct.
-
-Layout sugerido (documentar el definitivo en docs/INFORME.md):
-
-Header:
-  magia     4s   b'AYED'
-  tema      1s   b'P' | b'R' | b'M'
-  cantidad  I    unsigned int
-
-El registro depende del tema. Ejemplo Pokédex:
-  id          I
-  nombre     20s
-  tipo1      12s
-  tipo2      12s
-  hp          H
-  ataque      H
-  defensa     H
-  velocidad   H
-  generacion  H
-"""
-
-
 import struct
 
 from src.excepciones import ArchivoInvalidoError
 
 
 FORMATO_HEADER = "<4s1sI"
-FORMATO_REGISTRO = "<I20s12s12sI"
+FORMATO_REGISTRO = "<I20s12s12s5H"
 
 TAM_HEADER = struct.calcsize(FORMATO_HEADER)
 TAM_REGISTRO = struct.calcsize(FORMATO_REGISTRO)
 
 MAGIA = b"AYED"
 TEMA_POKEDEX = b"P"
+
+CAMPOS_NUMERICOS = ["hp", "ataque", "defensa", "velocidad", "generacion"]
 
 
 def _valor(item, campo):
@@ -64,11 +44,9 @@ def _empaquetar_registro(item):
         tipo1 = _texto_a_bytes(_valor(item, "tipo1"), 12, "tipo1")
         tipo2 = _texto_a_bytes(_valor(item, "tipo2"), 12, "tipo2")
 
-        evolucion = _valor(item, "evolucion")
-        evolucion = 0 if evolucion in (None, "") else int(evolucion)
-
-        if id_pokemon < 0 or evolucion < 0:
-            raise ValueError("los enteros no pueden ser negativos")
+        numeros = []
+        for campo in CAMPOS_NUMERICOS:
+            numeros.append(int(_valor(item, campo)))
 
         return struct.pack(
             FORMATO_REGISTRO,
@@ -76,7 +54,7 @@ def _empaquetar_registro(item):
             nombre,
             tipo1,
             tipo2,
-            evolucion,
+            *numeros,
         )
     except (KeyError, AttributeError, TypeError, ValueError, struct.error) as error:
         if isinstance(error, ArchivoInvalidoError):
@@ -88,17 +66,19 @@ def _empaquetar_registro(item):
 
 def _desempaquetar_registro(datos):
     try:
-        id_pokemon, nombre, tipo1, tipo2, evolucion = struct.unpack(
+        id_pokemon, nombre, tipo1, tipo2, *numeros = struct.unpack(
             FORMATO_REGISTRO,
             datos,
         )
-        return {
-            "id": id_pokemon,
+        fila = {
+            "id": str(id_pokemon),
             "nombre": nombre.rstrip(b"\x00").decode("utf-8"),
             "tipo1": tipo1.rstrip(b"\x00").decode("utf-8"),
             "tipo2": tipo2.rstrip(b"\x00").decode("utf-8"),
-            "evolucion": "" if evolucion == 0 else str(evolucion),
         }
+        for campo, numero in zip(CAMPOS_NUMERICOS, numeros):
+            fila[campo] = str(numero)
+        return fila
     except (UnicodeDecodeError, struct.error) as error:
         raise ArchivoInvalidoError(
             f"Registro binario inválido: {error}"
@@ -160,7 +140,6 @@ def cargar_binario(ruta):
 
 
 def actualizar_registro(ruta, posicion, item):
-    """Actualiza un registro por índice 0-based sin reescribir el archivo."""
     if not isinstance(posicion, int) or posicion < 0:
         raise ArchivoInvalidoError("La posición debe ser un entero no negativo.")
 

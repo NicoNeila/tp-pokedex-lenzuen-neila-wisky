@@ -1,16 +1,17 @@
 import time
 
-from src.dominio.pokedex import Pokedex, clave_nombre
+from src.dominio.pokedex import clave_nombre
+from src.persistencia.texto import cargar_texto
+from src.main import RUTA_POKEDEX, _filas_a_pokemones
 from src.algoritmos.busqueda import busqueda_lineal, busqueda_binaria
 from src.algoritmos.ordenamiento import ordenar_seleccion, ordenar_insercion, ordenar_shell
 
-FACTORES = [1, 10, 100]      # catálogo original, x10 y x100
+FACTORES = [1, 10, 100]
 MINIMO_SEGUNDOS = 0.05
-NO_EXISTE = "missingno"      # para medir el peor caso de las búsquedas
+NO_EXISTE = "missingno"
 
 
 def tiempo_promedio(operacion):
-    """Repite la operación hasta juntar MINIMO_SEGUNDOS y promedia. Mejor de 3."""
     mejor = None
     for _ in range(3):
         repeticiones = 0
@@ -28,12 +29,11 @@ def tiempo_promedio(operacion):
 
 
 def main():
-    dex = Pokedex()
-    dex.cargar_datos_iniciales()
+    pokemones = _filas_a_pokemones(cargar_texto(RUTA_POKEDEX))
     print("| Operación | n | segundos |")
     print("| --- | --- | --- |")
     for factor in FACTORES:
-        datos = dex.pokemones * factor
+        datos = pokemones * factor
         ordenados = ordenar_insercion(datos, clave_nombre)
         n = len(datos)
         filas = [

@@ -1,4 +1,3 @@
-from src.dominio.pokemon import Pokemon
 from src.algoritmos.busqueda import busqueda_lineal, busqueda_binaria
 
 
@@ -14,7 +13,6 @@ def clave_tipo(pokemon):
     return pokemon.tipo1.lower()
 
 
-# criterio -> (texto para mostrar, función que da la clave)
 CRITERIOS = {
     "nombre": ("nombre", clave_nombre),
     "numero": ("número", clave_numero),
@@ -23,31 +21,15 @@ CRITERIOS = {
 
 
 class Pokedex:
-    """Catalogo de Pokemon."""
 
     def __init__(self):
         self.pokemones = []
-        self.orden = None   # criterio por el que está ordenado, o None
+        self.evoluciones = []
+        self.orden = None
 
     def agregar(self, pokemon):
         self.pokemones.append(pokemon)
-        self.orden = None   # agregar al final puede romper el orden
-
-    def cargar_datos_iniciales(self):
-        self.agregar(Pokemon(1, "Bulbasaur", "Planta", "Veneno", 2))
-        self.agregar(Pokemon(2, "Ivysaur", "Planta", "Veneno", 3))
-        self.agregar(Pokemon(3, "Venusaur", "Planta", "Veneno", None))
-        self.agregar(Pokemon(4, "Charmander", "Fuego", "", 5))
-        self.agregar(Pokemon(5, "Charmeleon", "Fuego", "", 6))
-        self.agregar(Pokemon(6, "Charizard", "Fuego", "Volador", None))
-        self.agregar(Pokemon(7, "Squirtle", "Agua", "", 8))
-        self.agregar(Pokemon(8, "Wartortle", "Agua", "", 9))
-        self.agregar(Pokemon(9, "Blastoise", "Agua", "", None))
-        self.agregar(Pokemon(254, "Sceptile", "Planta", "", None))
-        self.agregar(Pokemon(282, "Gardevoir", "Hada", "Psiquico", None))
-        self.agregar(Pokemon(362, "Walrein", "Hielo", "Agua", None))
-        self.agregar(Pokemon(464, "Rhyperior", "Roca", "Tierra", None))
-        self.agregar(Pokemon(862, "Obstagoon", "Siniestro", "Normal", None))
+        self.orden = None
 
     def listar(self):
         for pokemon in self.pokemones:
@@ -61,10 +43,19 @@ class Pokedex:
         return None
 
     def anterior_de(self, id_pokemon):
-        for pokemon in self.pokemones:
-            if pokemon.evolucion == id_pokemon:
-                return pokemon
+        for origen, destino in self.evoluciones:
+            if destino == id_pokemon:
+                return self.buscar_por_id(origen)
         return None
+
+    def siguientes_de(self, id_pokemon):
+        siguientes = []
+        for origen, destino in self.evoluciones:
+            if origen == id_pokemon:
+                pokemon = self.buscar_por_id(destino)
+                if pokemon is not None:
+                    siguientes.append(pokemon)
+        return siguientes
 
     def buscar_base(self, id_pokemon):
         anterior = self.anterior_de(id_pokemon)
@@ -72,22 +63,24 @@ class Pokedex:
             return self.buscar_por_id(id_pokemon)
         return self.buscar_base(anterior.id)
 
-    def cadena_desde(self, id_pokemon):
+    def cadenas_desde(self, id_pokemon):
         actual = self.buscar_por_id(id_pokemon)
-        if actual is None:
-            return []
-        if actual.evolucion is None:
-            return [actual.nombre]
-        return [actual.nombre] + self.cadena_desde(actual.evolucion)
+        siguientes = self.siguientes_de(id_pokemon)
+        if siguientes == []:
+            return [[actual.nombre]]
+        cadenas = []
+        for siguiente in siguientes:
+            for cadena in self.cadenas_desde(siguiente.id):
+                cadenas.append([actual.nombre] + cadena)
+        return cadenas
 
-    def cadena_evolutiva(self, id_pokemon):
+    def cadenas_evolutivas(self, id_pokemon):
         if self.buscar_por_id(id_pokemon) is None:
             return []
         base = self.buscar_base(id_pokemon)
-        return self.cadena_desde(base.id)
+        return self.cadenas_desde(base.id)
 
     def ordenar(self, criterio, algoritmo):
-        """Ordena el catálogo con uno de los algoritmos de src/algoritmos."""
         _, clave = CRITERIOS[criterio]
         self.pokemones = algoritmo(self.pokemones, clave)
         self.orden = criterio
@@ -96,9 +89,7 @@ class Pokedex:
         return self.orden == criterio
 
     def buscar_por_nombre(self, nombre):
-        """Búsqueda lineal por nombre, sin importar mayúsculas."""
         return busqueda_lineal(self.pokemones, nombre.strip().lower(), clave_nombre)
 
     def buscar_por_nombre_binaria(self, nombre):
-        """Búsqueda binaria por nombre. Requiere estar ordenado por nombre."""
         return busqueda_binaria(self.pokemones, nombre.strip().lower(), clave_nombre)
